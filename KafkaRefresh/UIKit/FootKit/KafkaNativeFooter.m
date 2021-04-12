@@ -7,7 +7,7 @@
  * This source code is licensed under the MIT license.
  */
 
-#import "KafkaNativeFooter.h" 
+#import "KafkaNativeFooter.h"
 #import "KafkaCategories.h"
 
 @interface KafkaNativeFooter()
@@ -28,12 +28,12 @@
 
 - (void)layoutSubviews{
 	[super layoutSubviews];
-	
+
 	self.indicator.center = CGPointMake(self.kr_width/2., self.kr_height/2.);
 }
 
 - (void)kafkaDidScrollWithProgress:(CGFloat)progress max:(const CGFloat)max{
-	
+
 }
 
 - (void)kafkaRefreshStateDidChange:(KafkaRefreshState)state{
@@ -63,8 +63,8 @@
 
 - (UIActivityIndicatorView *)indicator{
 	if (!_indicator) {
-		_indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-		_indicator.hidesWhenStopped = NO;
+		_indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
+		_indicator.hidesWhenStopped = YES;
 	}
 	return _indicator;
 }

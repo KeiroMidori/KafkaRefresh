@@ -45,7 +45,7 @@
 	new.colors = @[(id)[self.textColor colorWithAlphaComponent:0.2].CGColor,
 				   (id)[self.textColor colorWithAlphaComponent:0.1].CGColor,
 				   (id)[self.textColor colorWithAlphaComponent:0.2].CGColor];
-	
+
 	CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"bounds.size.width"];
 	animation.fromValue = @(0);
 	animation.toValue = @(self.kr_width);
@@ -141,7 +141,7 @@ static CGFloat const kStretchOffsetYAxisThreshold = 1.0;
 			if (!self.isTriggeredRefreshByUser && !self.scrollView.isTracking) {
 				return;
 			}
-		 
+
             [self setAnimateBlock:^{@strongify(self); self.alpha = 1.0; }];
 			break;
 		}
@@ -161,7 +161,7 @@ static CGFloat const kStretchOffsetYAxisThreshold = 1.0;
 		}
 		case KafkaRefreshStateWillEndRefresh:{
             [self setAnimateBlock:^{@strongify(self); self.alpha = 1.0; }];
-			break; 
+			break;
 		}
 	}
 	if (self.shouldNoLongerRefresh) {
@@ -182,7 +182,7 @@ static CGFloat const kStretchOffsetYAxisThreshold = 1.0;
 	}
 }
 
-- (BOOL)isRefresh{ 
+- (BOOL)isRefresh{
 	return (_refreshState == KafkaRefreshStateRefreshing);
 }
 
@@ -190,7 +190,7 @@ static CGFloat const kStretchOffsetYAxisThreshold = 1.0;
 
 - (void)layoutSubviews{
 	[super layoutSubviews];
-	
+
 	self.kr_height = (self.kr_height < 45.) ? KafkaRefreshHeight : self.kr_height;
 	self.frame = CGRectMake(0, 0, self.scrollView.kr_width, self.kr_height);
 	self.alertLabel.frame = self.bounds;
@@ -219,14 +219,14 @@ static CGFloat const kStretchOffsetYAxisThreshold = 1.0;
 		}
 	}
 }
-  
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
 	if ([keyPath isEqualToString:KafkaContentOffset]) {
         /**
          If you disable the control's refresh feature, set the control to hidden
          */
 		if (self.isHidden || self.shouldNoLongerRefresh) return;
-		
+
 		CGPoint point = [[change valueForKey:NSKeyValueChangeNewKey] CGPointValue];
 		/**
 		If you quickly scroll scrollview in an instant, contentoffset changes are not continuous
@@ -263,7 +263,7 @@ static CGFloat const kStretchOffsetYAxisThreshold = 1.0;
 		self.alertLabel.text = text;
 		[self.alertLabel startAnimating];
 		@weakify(self);
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ 
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 			@strongify(self);
             [self.alertLabel stopAnimating];
             [self _endRefresh:completion];
@@ -276,23 +276,21 @@ static CGFloat const kStretchOffsetYAxisThreshold = 1.0;
 - (void)endRefreshingAndNoLongerRefreshingWithAlertText:(NSString *)text{
 	if (self.isHidden) return;
 	if (self.isShouldNoLongerRefresh) return;
-    
+
 	self.shouldNoLongerRefresh = YES;
-   
+
     @weakify(self);
-	if (self.alertLabel.alpha == 0.0) {
-		[UIView animateWithDuration:0.3 animations:^{
-             @strongify(self);
-			self.alertLabel.alpha = 1.0;
-		}];
-	}
-	[self bringSubviewToFront:self.alertLabel];
-	self.alertLabel.text = text; 
 	if (text) {
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			 @strongify(self);
-            [self _endRefresh:nil];
-		});
+        [self _endRefresh: ^{
+            @strongify(self);
+           if (self.alertLabel.alpha == 0.0) {
+               [UIView animateWithDuration:0.3 animations:^{
+                   self.alertLabel.alpha = 1.0;
+               }];
+           }
+           [self bringSubviewToFront:self.alertLabel];
+           self.alertLabel.text = text;
+        }];
 	} else {
         [self _endRefresh:nil];
 	}
